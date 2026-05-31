@@ -1,0 +1,2230 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SO Mission Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer" />
+  <style>
+    :root{
+      /* Nuansa "jepang" (sakura + sumi ink) */
+      --bg:#070b14;
+      --panel: rgba(18, 24, 40, .86);
+      --panel2: rgba(12, 18, 34, .86);
+      --text:#eef2ff;
+      --muted:#a7b0d6;
+      --line:rgba(255,255,255,.09);
+      --brand:#ff4d6d; /* sakura */
+      --brand2:#7c5cff; /* accent */
+      --accent:#22c55e; /* matcha */
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --btn: rgba(255,255,255,.06);
+      --btn2: rgba(255,255,255,.10);
+      --shadow: 0 22px 60px rgba(0,0,0,.40);
+      --radius: 16px;
+      --radius2: 20px;
+      --focus: 0 0 0 4px rgba(255, 77, 109, .18);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    [data-theme="light"]{
+      --bg:#f6f7fb;
+      --panel: rgba(255,255,255,.92);
+      --panel2:#f2f4fb;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:rgba(15,23,42,.10);
+      --brand:#ff3b5c;
+      --brand2:#5b34ff;
+      --btn: rgba(2,6,23,.05);
+      --btn2: rgba(2,6,23,.08);
+      --shadow: 0 12px 34px rgba(2,6,23,.12);
+      --focus: 0 0 0 4px rgba(255, 59, 92, .15);
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 16% -10%, rgba(255,77,109,.18), transparent 46%),
+        radial-gradient(900px 680px at 92% 0%, rgba(124,92,255,.20), transparent 50%),
+        radial-gradient(900px 680px at 70% 120%, rgba(34,197,94,.12), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.03), transparent 24%),
+        var(--bg);
+    }
+    a{ color:inherit; }
+    .wrap{ max-width:1100px; margin:0 auto; padding: clamp(12px, 2.6vw, 18px); }
+    .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius2);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 12px;
+      z-index: 50;
+    }
+    .brand{ display:flex; gap:12px; align-items:center; }
+    .logo{
+      width:40px;height:40px;border-radius:12px;
+      background:linear-gradient(135deg, rgba(255,77,109,1), rgba(124,92,255,.92));
+      box-shadow: 0 16px 30px rgba(255,77,109,.16);
+    }
+    .brand h1{ font-size:16px; margin:0; line-height:1.2; }
+    .brand .sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      background:var(--btn);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      transition: transform .12s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+      font-weight:600;
+      box-shadow: 0 10px 24px rgba(0,0,0,.12);
+    }
+    .btn:hover{ background:var(--btn2); border-color: rgba(255,255,255,.16); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(255,77,109,1), rgba(124,92,255,.92));
+      border-color: transparent;
+      box-shadow: 0 16px 36px rgba(255,77,109,.14);
+    }
+    .btn.danger{ background: rgba(239,68,68,.16); border-color: rgba(239,68,68,.25); }
+    .btn.ok{ background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.25); }
+    .btn.ghost{ background: transparent; }
+    .btn.small{ padding:8px 10px; border-radius:12px; font-size:12px; box-shadow:none; }
+
+    .grid{
+      display:grid; grid-template-columns: 1.2fr .8fr; gap:14px;
+      margin-top:14px;
+    }
+    @media (max-width: 960px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+    .card h2{ margin:0 0 10px 0; font-size:14px; letter-spacing:.2px; }
+    .card .hint{ color:var(--muted); font-size:12px; margin-top:8px; line-height:1.55; }
+    .field{ display:flex; flex-direction:column; gap:6px; margin:10px 0; }
+    .field label{ font-size:12px; color:var(--muted); }
+    .field input, .field select, .field textarea{
+      background:var(--panel2);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:11px 12px;
+      outline:none;
+      font-size:14px;
+    }
+    .field input::placeholder{ color: rgba(167,176,214,.65); }
+    .field input:focus, .field select:focus, .field textarea:focus{
+      box-shadow: var(--focus);
+      border-color: rgba(255,77,109,.35);
+    }
+    .field input[type="number"]{ font-family:var(--mono); }
+    .field select{
+      appearance:none;
+      -webkit-appearance:none;
+      padding-right: 38px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, rgba(255,255,255,.68) 50%),
+        linear-gradient(135deg, rgba(255,255,255,.68) 50%, transparent 50%),
+        linear-gradient(to right, transparent, transparent);
+      background-position:
+        calc(100% - 18px) 50%,
+        calc(100% - 12px) 50%,
+        0 0;
+      background-size: 6px 6px, 6px 6px, 100% 100%;
+      background-repeat: no-repeat;
+    }
+    .split{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width: 520px){ .split{ grid-template-columns:1fr; } }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:12px; padding:6px 10px;
+      border-radius:999px; border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+    .pill strong{ color:var(--text); }
+    .list{ display:flex; flex-direction:column; gap:10px; }
+    .item{
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+      padding:12px; border:1px solid var(--line); border-radius:14px;
+      background: rgba(255,255,255,.03);
+      transition: transform .12s ease, border-color .18s ease, background .18s ease;
+    }
+    .item:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.14);
+      background: rgba(255,255,255,.045);
+    }
+    .item .left{ display:flex; gap:10px; align-items:flex-start; }
+    .check{
+      width:18px; height:18px; border-radius:6px;
+      border:1px solid var(--line);
+      background:transparent;
+      margin-top:2px;
+    }
+    .check.done{ background: rgba(34,197,94,.22); border-color: rgba(34,197,94,.35); }
+    .item h3{ margin:0; font-size:13px; }
+    .meta{ margin-top:3px; font-size:12px; color:var(--muted); }
+    .meta code{ font-family:var(--mono); }
+    .right{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+
+    .bar{
+      height:10px; width:100%;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .bar > div{ height:100%; background:linear-gradient(90deg, rgba(124,92,255,1), rgba(34,197,94,1)); width:0%; }
+    .kpi{ display:flex; gap:10px; flex-wrap:wrap; }
+    .kpi .box{
+      flex:1 1 140px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+    }
+    .kpi .box .v{ font-size:18px; font-weight:800; }
+    .kpi .box .t{ font-size:12px; color:var(--muted); }
+
+    .delta{ font-family:var(--mono); font-weight:800; }
+    .delta.plus{ color:var(--ok); }
+    .delta.zero{ color:var(--muted); }
+    .delta.minus{ color:var(--bad); }
+
+    .modal-backdrop{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none; align-items:center; justify-content:center;
+      padding:18px;
+      z-index:999;
+    }
+    .modal{
+      width:min(520px, 100%);
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      padding:14px;
+    }
+    .modal h3{ margin:0 0 6px 0; font-size:14px; }
+    .modal p{ margin:0 0 12px 0; color:var(--muted); font-size:12px; line-height:1.6; white-space: pre-line; }
+    .toast{
+      position:fixed;
+      right:16px; bottom:16px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:10px 12px;
+      color:var(--text);
+      font-size:12px;
+      display:none;
+      z-index:1000;
+    }
+    .videoWrap{
+      border:1px dashed var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      background:rgba(255,255,255,.03);
+    }
+    video{ width:100%; height:auto; display:block; }
+    .footerNote{ margin-top:12px; color:var(--muted); font-size:12px; line-height:1.5; }
+
+    /* =========================================================
+       Manga-style redesign (override, style-only)
+       Target look: seperti contoh MyComicList (dark modern)
+       ========================================================= */
+
+    :root{
+      --bg-base: #0f0f0f;
+      --bg-surface: #1f1f1f;
+      --bg-surface-hover: #2d2d2d;
+      --accent: #ff4757;
+      --text-main: #f1f1f1;
+      --text-muted: #aaaaaa;
+      --font-global: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
+
+      /* Alias untuk komponen yang sudah ada (jangan ubah fitur) */
+      --bg: var(--bg-base);
+      --panel: var(--bg-surface);
+      --panel2: #1a1a1a;
+      --text: var(--text-main);
+      --muted: var(--text-muted);
+      --line: rgba(255, 255, 255, 0.08);
+      --brand: var(--accent);
+      --brand2: var(--accent);
+      --btn: var(--bg-surface);
+      --btn2: var(--bg-surface-hover);
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --radius: 12px;
+      --radius2: 12px;
+      --focus: 0 0 0 4px rgba(255, 71, 87, 0.12);
+      --sans: var(--font-global);
+    }
+
+    [data-theme="light"]{
+      --bg-base: #f6f7fb;
+      --bg-surface: #ffffff;
+      --bg-surface-hover: #f3f4f6;
+      --accent: #ff4757;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --line: rgba(15, 23, 42, 0.08);
+      --panel2: #f6f7fb;
+      --shadow: 0 10px 30px rgba(2,6,23,.10);
+      --focus: 0 0 0 4px rgba(255, 71, 87, 0.12);
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body{
+      background-color: var(--bg-base) !important;
+      color: var(--text-main) !important;
+      font-family: var(--font-global) !important;
+      overflow-x: hidden;
+      /* Supaya konten tidak ketutup bottom nav (terutama Android/iPhone) */
+      padding-bottom: calc(140px + env(safe-area-inset-bottom));
+      position: relative;
+    }
+
+    /* Neon particles / glow background */
+    body::before{
+      content:"";
+      position: fixed;
+      inset: -20%;
+      background:
+        radial-gradient(600px 420px at 15% 20%, rgba(255, 71, 87, 0.22), transparent 55%),
+        radial-gradient(520px 420px at 80% 25%, rgba(124, 92, 255, 0.22), transparent 55%),
+        radial-gradient(520px 420px at 60% 90%, rgba(34, 197, 94, 0.16), transparent 60%),
+        radial-gradient(420px 420px at 30% 80%, rgba(255, 183, 0, 0.12), transparent 60%);
+      filter: blur(18px) saturate(1.2);
+      opacity: 1;
+      z-index: 0;
+      pointer-events:none;
+      animation: glowDrift 14s ease-in-out infinite alternate;
+    }
+    body::after{
+      content:"";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(255, 71, 87, 0.25) 0 1px, transparent 2px),
+        radial-gradient(circle at 65% 22%, rgba(124, 92, 255, 0.22) 0 1px, transparent 2px),
+        radial-gradient(circle at 75% 78%, rgba(34, 197, 94, 0.18) 0 1px, transparent 2px),
+        radial-gradient(circle at 35% 72%, rgba(255, 183, 0, 0.16) 0 1px, transparent 2px);
+      background-size: 220px 220px, 260px 260px, 240px 240px, 280px 280px;
+      opacity: .55;
+      z-index: 0;
+      pointer-events:none;
+      mix-blend-mode: screen;
+      animation: particleShift 10s linear infinite;
+    }
+    @keyframes glowDrift{
+      0%{ transform: translate3d(0,0,0) scale(1); }
+      100%{ transform: translate3d(-2%, 2%, 0) scale(1.02); }
+    }
+    @keyframes particleShift{
+      0%{ transform: translate3d(0,0,0); }
+      100%{ transform: translate3d(-40px, 30px, 0); }
+    }
+    [data-theme="light"] body::before{
+      background:
+        radial-gradient(560px 420px at 10% 20%, rgba(255, 71, 87, 0.14), transparent 55%),
+        radial-gradient(520px 420px at 85% 25%, rgba(124, 92, 255, 0.12), transparent 55%),
+        radial-gradient(520px 420px at 55% 90%, rgba(34, 197, 94, 0.10), transparent 60%),
+        radial-gradient(420px 420px at 35% 80%, rgba(255, 183, 0, 0.08), transparent 60%);
+      opacity: 1;
+      filter: blur(20px) saturate(1.15);
+    }
+    [data-theme="light"] body::after{
+      opacity: .35;
+      mix-blend-mode: multiply;
+    }
+
+    /* Header ala manga */
+    header.app-header{
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      background-color: rgba(15, 15, 15, 0.95);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      z-index: 1000;
+    }
+    [data-theme="light"] header.app-header{
+      background-color: rgba(246, 247, 251, 0.92);
+      border-bottom-color: rgba(15, 23, 42, 0.08);
+    }
+    .logo-area{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width: 210px;
+    }
+    .logo-title{
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      line-height: 1.15;
+    }
+    .logo-title i{ color: var(--accent); }
+    .logo-title span{ color: var(--accent); }
+    .logo-sub{
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Tombol icon besar (ganti search box) */
+    .icon-launch{
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background-color: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: var(--text-main);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition: all .2s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+    .icon-launch i{ font-size: 1.25rem; }
+    .icon-launch:hover{ background-color: var(--bg-surface-hover); transform: translateY(-1px); }
+    .icon-launch:active{ transform: translateY(0); }
+    .icon-launch:disabled{ opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    /* Container utama */
+    .wrap{ max-width:unset !important; padding:0 !important; }
+    main.app-container{
+      margin-top: 90px;
+      padding: 0 2rem;
+      max-width: 1600px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-bottom: calc(160px + env(safe-area-inset-bottom));
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Grid & card */
+    .grid{
+      margin-top: 0 !important;
+      gap: 1.2rem !important;
+      grid-template-columns: 1.2fr .8fr;
+      padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    }
+    @media (max-width: 960px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    .card{
+      background: var(--bg-surface) !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.22) !important;
+      padding: 1rem !important;
+    }
+    [data-theme="light"] .card{
+      border-color: rgba(15,23,42,.08) !important;
+      box-shadow: 0 10px 26px rgba(2,6,23,0.08) !important;
+    }
+
+    .card h2{
+      font-size: 1.05rem !important;
+      font-weight: 700 !important;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .card h2::after{
+      content:'';
+      flex:1;
+      height:1px;
+      background: rgba(255,255,255,0.05);
+      margin-left: 6px;
+    }
+    [data-theme="light"] .card h2::after{ background: rgba(15,23,42,0.08); }
+
+    .hint, .footerNote{
+      color: var(--text-muted) !important;
+    }
+
+    /* Buttons ala pill */
+    .btn{
+      background-color: var(--bg-surface) !important;
+      border: 1px solid transparent !important;
+      border-radius: 10px !important;
+      padding: 0.55rem 0.95rem !important;
+      font-size: 0.88rem !important;
+      font-weight: 600 !important;
+      color: var(--text-main) !important;
+      box-shadow: none !important;
+      transition: all 0.2s ease !important;
+    }
+    .btn:hover{ background-color: var(--bg-surface-hover) !important; transform:none !important; }
+    .btn.primary{
+      background-color: var(--text-main) !important;
+      color: var(--bg-base) !important;
+    }
+    .btn.primary:hover{ filter: brightness(0.96); }
+    .btn.ghost{ border-color: rgba(255,255,255,0.08) !important; }
+    [data-theme="light"] .btn.ghost{ border-color: rgba(15,23,42,0.10) !important; }
+    .btn.ok{
+      background: rgba(34,197,94,0.15) !important;
+      border-color: rgba(34,197,94,0.22) !important;
+    }
+    .btn.danger{
+      background: rgba(239,68,68,0.14) !important;
+      border-color: rgba(239,68,68,0.22) !important;
+    }
+    .btn.small{
+      padding: 0.42rem 0.7rem !important;
+      font-size: 0.80rem !important;
+      border-radius: 10px !important;
+    }
+
+    /* Inputs */
+    .field input, .field select, .field textarea{
+      background-color: #191919 !important;
+      border: 1px solid rgba(255,255,255,0.10) !important;
+      color: var(--text-main) !important;
+      border-radius: 12px !important;
+      padding: 0.65rem 0.9rem !important;
+      font-family: var(--font-global) !important;
+      transition: all 0.25s ease !important;
+    }
+    .field select{
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      padding-right: 2.4rem !important;
+      background-image:
+        linear-gradient(45deg, transparent 50%, rgba(241,241,241,.75) 50%),
+        linear-gradient(135deg, rgba(241,241,241,.75) 50%, transparent 50%),
+        linear-gradient(to right, transparent, transparent);
+      background-position:
+        calc(100% - 1.2rem) 50%,
+        calc(100% - 0.95rem) 50%,
+        0 0;
+      background-size: 6px 6px, 6px 6px, 100% 100%;
+      background-repeat: no-repeat;
+    }
+    [data-theme="light"] .field select{
+      background-image:
+        linear-gradient(45deg, transparent 50%, rgba(2,6,23,.55) 50%),
+        linear-gradient(135deg, rgba(2,6,23,.55) 50%, transparent 50%),
+        linear-gradient(to right, transparent, transparent);
+    }
+    [data-theme="light"] .field input, [data-theme="light"] .field select, [data-theme="light"] .field textarea{
+      background-color: #ffffff !important;
+      border-color: rgba(15,23,42,0.10) !important;
+      color: var(--text-main) !important;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus{
+      outline: none !important;
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 15px rgba(255, 71, 87, 0.10) !important;
+    }
+
+    /* List item look */
+    .item{
+      background: none !important;
+      border: none !important;
+      padding: 0.35rem 0.2rem !important;
+    }
+    .item:hover{ transform:none !important; }
+    .item .left{ align-items:center !important; }
+    .item h3{ font-size: 0.95rem !important; font-weight: 600 !important; }
+    .meta{ color: var(--text-muted) !important; }
+
+    /* Check indicator ala "meta-jp-indicator" */
+    .check{
+      width: 34px !important;
+      height: 34px !important;
+      border-radius: 50% !important;
+      background-color: var(--bg-surface) !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      margin-top: 0 !important;
+      position: relative;
+    }
+    .check::after{
+      content: '未';
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+    .check.done{
+      background-color: rgba(255, 71, 87, 0.12) !important;
+      border-color: rgba(255, 71, 87, 0.22) !important;
+    }
+    .check.done::after{
+      content:'済';
+      color: var(--accent);
+    }
+
+    .pill{
+      background-color: var(--bg-surface) !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      border-radius: 12px !important;
+      color: var(--text-muted) !important;
+      padding: 0.45rem 0.8rem !important;
+      font-weight: 600 !important;
+    }
+    [data-theme="light"] .pill{ border-color: rgba(15,23,42,0.10) !important; }
+
+    /* KPI boxes */
+    .kpi .box{
+      background: none !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      border-radius: 12px !important;
+      padding: 0.85rem !important;
+    }
+    [data-theme="light"] .kpi .box{ border-color: rgba(15,23,42,0.10) !important; }
+    .kpi .box .v{ font-size: 1.2rem !important; }
+    .kpi .box .t{ color: var(--text-muted) !important; }
+
+    /* Progress bar */
+    .bar{
+      background: rgba(255,255,255,0.06) !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      height: 10px !important;
+    }
+    .bar > div{
+      background: linear-gradient(90deg, rgba(255, 71, 87, 1), rgba(255, 183, 0, .9)) !important;
+    }
+
+    /* Modal ala reader header */
+    .modal{
+      background: rgba(31,31,31,0.98) !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      border-radius: 14px !important;
+      padding: 1rem !important;
+    }
+    [data-theme="light"] .modal{ background: rgba(255,255,255,0.98) !important; }
+    .modal-backdrop{ backdrop-filter: blur(6px); }
+
+    /* Toast: naikkan agar tidak ketutup bottom nav */
+    .toast{ bottom: 76px !important; }
+    .toast{ bottom: calc(76px + env(safe-area-inset-bottom)) !important; }
+
+    /* Bottom nav ala manga (mobile) */
+    .bottom-nav{
+      display:none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: calc(60px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background-color: rgba(23, 23, 23, 0.98);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+    }
+    [data-theme="light"] .bottom-nav{
+      background-color: rgba(246, 247, 251, 0.95);
+      border-top-color: rgba(15, 23, 42, 0.08);
+    }
+    .nav-item{
+      display:flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.65rem;
+      font-weight: 600;
+      gap: 2px;
+      user-select:none;
+    }
+    .nav-item.active{ color: var(--text-main); }
+    .nav-item-jp{
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    /* Floating + bubble menu (Supervisor) */
+    .fab-wrap{
+      position: fixed;
+      right: 18px;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      z-index: 1100;
+    }
+    @media (max-width: 768px){
+      .fab-wrap{
+        bottom: calc(84px + env(safe-area-inset-bottom));
+        right: 14px;
+      }
+    }
+    .fab{
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+    .fab i{ font-size: 1.25rem; transition: transform .2s ease; }
+    .fab.open i{ transform: rotate(45deg); }
+    .fab:hover{ background: var(--bg-surface-hover); }
+
+    .fab-menu{
+      position: absolute;
+      right: 0;
+      bottom: 66px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      transform: translateY(8px) scale(.98);
+      opacity: 0;
+      pointer-events: none;
+      transition: all .18s ease;
+    }
+    .fab-menu.open{
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .fab-action{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(31,31,31,0.98);
+      color: var(--text-main);
+      cursor:pointer;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.24);
+      font-weight: 700;
+      min-width: 140px;
+      justify-content:flex-start;
+      transition: background .18s ease, transform .18s ease;
+    }
+    [data-theme="light"] .fab-action{
+      background: rgba(255,255,255,0.98);
+      border-color: rgba(15,23,42,0.10);
+    }
+    .fab-action:hover{ background: var(--bg-surface-hover); transform: translateY(-1px); }
+    .fab-action i{ color: var(--accent); }
+    .fab-action span{ font-size: .92rem; }
+
+    @media (max-width: 768px){
+      header.app-header { padding: 0 1rem; }
+      main.app-container{ padding: 0 1rem; margin-top: 85px; }
+      .bottom-nav{ display:flex; }
+      .logo-area{ min-width: unset; }
+    }
+    @media (max-width: 480px){
+      .logo-area{ display:none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo-area">
+      <div class="logo-title"><i class="fa-solid fa-boxes-stacked"></i>SO Mission Board<span>.</span></div>
+      <div class="logo-sub" id="topSub">Stock Opname – mode offline (local)</div>
+    </div>
+    <button class="icon-launch" id="iconScan" title="Scan / Input">
+      <i class="fa-solid fa-barcode"></i>
+    </button>
+    <div class="header-actions">
+      <button class="btn ghost small" id="btnTheme" title="Ganti tema"><i class="fa-solid fa-circle-half-stroke"></i>Tema</button>
+      <button class="btn ghost small" id="btnReset" title="Hapus semua data lokal (backup-so.json)"><i class="fa-solid fa-rotate-left"></i>Reset</button>
+      <button class="btn small" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i>Logout</button>
+    </div>
+  </header>
+
+  <main class="app-container">
+    <div id="app" class="grid"></div>
+  </main>
+
+  <nav class="bottom-nav" id="bottomNav">
+    <a href="#" class="nav-item" data-go="dashboard"><span class="nav-item-jp">板</span><span>Board</span></a>
+    <a href="#" class="nav-item" data-go="scan"><span class="nav-item-jp">碼</span><span>Scan</span></a>
+    <a href="#" class="nav-item" data-go="supervisor"><span class="nav-item-jp">監</span><span>Monitor</span></a>
+  </nav>
+
+  <!-- Floating action button: hanya untuk Supervisor (Export/Import backup-so.json) -->
+  <div class="fab-wrap" id="fabWrap" style="display:none;">
+    <div class="fab-menu" id="fabMenu" aria-label="Menu backup">
+      <button class="fab-action" id="fabExport" type="button" title="Export backup-so.json">
+        <i class="fa-solid fa-download"></i><span>Export</span>
+      </button>
+      <button class="fab-action" id="fabImport" type="button" title="Import backup-so.json">
+        <i class="fa-solid fa-file-import"></i><span>Import</span>
+      </button>
+    </div>
+    <button class="fab" id="fabBtn" type="button" title="Backup menu">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h3 id="modalTitle">Konfirmasi</h3>
+      <p id="modalText">Apakah data sudah benar?</p>
+      <div class="row" style="justify-content:flex-end;">
+        <button class="btn" id="modalCancel">Batal</button>
+        <button class="btn primary" id="modalOk">Ya, Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ------------------------------
+    // Konfigurasi: user, kategori, item tanpa barcode
+    // ------------------------------
+    const USERS = ["Fredy","Aura","Maria","Siska","Goreti","Supervisor"];
+
+    const ASSIGNMENTS = {
+      Fredy: ["DND","All Galon","All Minuman 1 Liter","All Minuman Mini","Kopi"],
+      Aura: ["PCE","Rokok"],
+      Maria: ["MBF / Susu"],
+      Siska: ["Telur","Siomay","Beras"],
+      Goreti: ["Minyak","Pampers","Gas"],
+      Supervisor: ["(Supervisor)"]
+    };
+
+    // Khusus item tanpa barcode: sesuai permintaan "pilih dari daftar"
+    const NO_BARCODE_ITEMS = [
+      // Galon (Isi)
+      { id:"NOBARCODE:GALON:AQUA", name:"Aqua Galon Isi", category:"All Galon", owner:"Fredy" },
+      { id:"NOBARCODE:GALON:DC", name:"DC Galon Isi", category:"All Galon", owner:"Fredy" },
+      { id:"NOBARCODE:GALON:OKSI", name:"Oksi Galon Isi", category:"All Galon", owner:"Fredy" },
+      { id:"NOBARCODE:GALON:LEMIN", name:"Le Minerale Galon Isi", category:"All Galon", owner:"Fredy" },
+      // Galon (Kosong)
+      { id:"NOBARCODE:GALON:AQUA:KOSONG", name:"Aqua Galon Kosong", category:"All Galon", owner:"Fredy" },
+      { id:"NOBARCODE:GALON:DC:KOSONG", name:"DC Galon Kosong", category:"All Galon", owner:"Fredy" },
+      { id:"NOBARCODE:GALON:OKSI:KOSONG", name:"Oksi Galon Kosong", category:"All Galon", owner:"Fredy" },
+      { id:"NOBARCODE:GALON:LEMIN:KOSONG", name:"Le Minerale Galon Kosong", category:"All Galon", owner:"Fredy" },
+
+      // Gas (Isi)
+      { id:"NOBARCODE:GAS:3KG", name:"Gas 3 Kg Isi", category:"Gas", owner:"Goreti" },
+      { id:"NOBARCODE:GAS:12KG", name:"Gas 12 Kg Isi", category:"Gas", owner:"Goreti" },
+      // Gas (Kosong)
+      { id:"NOBARCODE:GAS:3KG:KOSONG", name:"Gas 3 Kg Kosong", category:"Gas", owner:"Goreti" },
+      { id:"NOBARCODE:GAS:12KG:KOSONG", name:"Gas 12 Kg Kosong", category:"Gas", owner:"Goreti" }
+    ];
+
+    // ------------------------------
+    // State & penyimpanan JSON (backup-so.json)
+    // ------------------------------
+    const BACKUP_FILE_NAME = "backup-so.json";
+
+    function todayId(){
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      return `SO-${yyyy}-${mm}-${dd}`;
+    }
+
+    function defaultState(){
+      return {
+        currentUser: null,
+        currentSessionId: todayId(),
+        ui: {
+          // Default theme: putih (light)
+          theme: "light"
+        },
+        sessions: {
+          [todayId()]: createSession(todayId())
+        }
+      };
+    }
+
+    function createSession(sessionId){
+      const userProgress = {};
+      for (const u of USERS){
+        if (u === "Supervisor") continue;
+        userProgress[u] = {};
+        for (const c of ASSIGNMENTS[u]) userProgress[u][c] = false;
+      }
+      return {
+        id: sessionId,
+        createdAt: Date.now(),
+        items: {}, // key => item
+        categoryDone: userProgress, // user->category->bool
+        logs: [] // audit ringan
+      };
+    }
+
+    function normalizeLoadedState(parsed){
+      const base = defaultState();
+      if (!parsed || typeof parsed !== "object") return base;
+      if (!parsed.sessions || typeof parsed.sessions !== "object") return base;
+      // merge ringan
+      const out = { ...base, ...parsed };
+      out.sessions = parsed.sessions || base.sessions;
+      out.ui = { ...base.ui, ...(parsed.ui || {}) };
+      if (out.ui.theme !== "light" && out.ui.theme !== "dark") out.ui.theme = base.ui.theme;
+      if (!out.currentSessionId) out.currentSessionId = todayId();
+      if (!out.sessions[out.currentSessionId]) out.sessions[out.currentSessionId] = createSession(out.currentSessionId);
+      return out;
+    }
+
+    async function opfsSupported(){
+      return !!(navigator.storage && navigator.storage.getDirectory);
+    }
+
+    async function readBackupFromOpfs(){
+      if (!(await opfsSupported())) return null;
+      try{
+        const dir = await navigator.storage.getDirectory();
+        const fh = await dir.getFileHandle(BACKUP_FILE_NAME);
+        const file = await fh.getFile();
+        const text = await file.text();
+        if (!text.trim()) return null;
+        return JSON.parse(text);
+      }catch(e){
+        return null;
+      }
+    }
+
+    async function writeBackupToOpfs(){
+      if (!(await opfsSupported())) return;
+      const dir = await navigator.storage.getDirectory();
+      const fh = await dir.getFileHandle(BACKUP_FILE_NAME, { create: true });
+      const writable = await fh.createWritable();
+      await writable.write(JSON.stringify(state, null, 2));
+      await writable.close();
+    }
+
+    async function deleteBackupFromOpfs(){
+      if (!(await opfsSupported())) return;
+      try{
+        const dir = await navigator.storage.getDirectory();
+        await dir.removeEntry(BACKUP_FILE_NAME);
+      }catch(e){
+        // ignore
+      }
+    }
+
+    let _saveTimer = null;
+    function saveState(){
+      // Simpan ke file backup-so.json di storage browser (OPFS) secara debounce.
+      // Catatan: browser tidak boleh menulis file ke folder OS secara otomatis tanpa izin user,
+      // jadi opsi "Backup" tetap tersedia untuk download file.
+      clearTimeout(_saveTimer);
+      _saveTimer = setTimeout(() => {
+        writeBackupToOpfs().catch(() => {});
+      }, 180);
+    }
+
+    let state = defaultState();
+    function applyTheme(){
+      const t = state?.ui?.theme === "dark" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", t);
+    }
+    applyTheme();
+
+    // ------------------------------
+    // Util
+    // ------------------------------
+    const $ = (sel) => document.querySelector(sel);
+    const app = $("#app");
+    const topSub = $("#topSub");
+    const iconScan = $("#iconScan");
+    const bottomNav = $("#bottomNav");
+    const fabWrap = $("#fabWrap");
+    const fabBtn = $("#fabBtn");
+    const fabMenu = $("#fabMenu");
+    const fabExport = $("#fabExport");
+    const fabImport = $("#fabImport");
+
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      })[c]);
+    }
+
+    function normalizeNameInput(s){
+      return String(s ?? "")
+        .toLowerCase()
+        .replace(/[^a-z\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    // Fuzzy login:
+    // - "Aura", "aura", "aur", "aurora" -> Aura
+    // - "Maria Goreti" -> Goreti (karena match terakhir)
+    // - "Maria" -> Maria
+    function resolveUserName(raw){
+      const s = normalizeNameInput(raw);
+      if (!s) return null;
+
+      const tokens = s.split(" ").filter(Boolean);
+      const scored = [];
+
+      for (const user of USERS){
+        const name = user.toLowerCase();
+        const p3 = name.slice(0, 3);
+        let score = 0;
+        let lastIdx = -1;
+
+        if (s === name){ score = 1000; lastIdx = s.lastIndexOf(name); }
+        if (s.startsWith(name)){ score = Math.max(score, 920 + name.length); lastIdx = Math.max(lastIdx, s.indexOf(name)); }
+        if (name.startsWith(s) && s.length >= 2){ score = Math.max(score, 820 + s.length); lastIdx = Math.max(lastIdx, s.indexOf(s)); }
+        if (p3 && s.startsWith(p3)){ score = Math.max(score, 760 + p3.length); lastIdx = Math.max(lastIdx, 0); }
+
+        for (const t of tokens){
+          if (t === name){ score = Math.max(score, 910 + name.length); lastIdx = Math.max(lastIdx, s.lastIndexOf(t)); }
+          if (name.startsWith(t) && t.length >= 2){ score = Math.max(score, 740 + t.length); lastIdx = Math.max(lastIdx, s.lastIndexOf(t)); }
+          if (p3 && t.startsWith(p3)){ score = Math.max(score, 700 + Math.min(t.length, 6)); lastIdx = Math.max(lastIdx, s.lastIndexOf(t)); }
+          if (name.includes(t) && t.length >= 3){ score = Math.max(score, 620 + t.length); lastIdx = Math.max(lastIdx, s.lastIndexOf(t)); }
+        }
+
+        // Heuristik: kalau input mengandung banyak kata, kandidat yang match lebih akhir menang.
+        if (score > 0){
+          scored.push({ user, score, lastIdx });
+        }
+      }
+
+      if (!scored.length) return null;
+      scored.sort((a,b) => (b.score - a.score) || (b.lastIdx - a.lastIdx));
+      const best = scored[0];
+      // threshold: minimal harus agak mirip
+      if (best.score < 650) return null;
+      return best.user;
+    }
+
+    function toast(msg){
+      const t = $("#toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => t.style.display = "none", 1600);
+    }
+
+    function downloadBackupJson(){
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type:"application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = BACKUP_FILE_NAME;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast("Backup JSON didownload");
+    }
+
+    function importBackupJson(){
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "application/json,.json";
+      input.onchange = async () => {
+        const f = input.files && input.files[0];
+        if (!f) return;
+        try{
+          const text = await f.text();
+          const parsed = JSON.parse(text);
+          state = normalizeLoadedState(parsed);
+          // Pastikan sesi hari ini ada dan jadi default aktif
+          const t = todayId();
+          if (!state.sessions[t]) state.sessions[t] = createSession(t);
+          state.currentSessionId = t;
+          state.currentUser = null;
+          applyTheme();
+          saveState();
+          toast("Import berhasil");
+          go("login");
+        }catch(e){
+          toast("Gagal import JSON");
+        }
+      };
+      input.click();
+    }
+
+    function modalConfirm({title="Konfirmasi", text="Apakah data sudah benar?", okText="Ya, Simpan"}){
+      const backdrop = $("#modalBackdrop");
+      $("#modalTitle").textContent = title;
+      $("#modalText").textContent = text;
+      $("#modalOk").textContent = okText;
+      backdrop.style.display = "flex";
+      return new Promise(resolve => {
+        const cleanup = () => {
+          backdrop.style.display = "none";
+          $("#modalCancel").onclick = null;
+          $("#modalOk").onclick = null;
+        };
+        $("#modalCancel").onclick = () => { cleanup(); resolve(false); };
+        $("#modalOk").onclick = () => { cleanup(); resolve(true); };
+      });
+    }
+
+    function ensureSession(sessionId){
+      if (!state.sessions[sessionId]) state.sessions[sessionId] = createSession(sessionId);
+      state.currentSessionId = sessionId;
+    }
+
+    function getSession(){
+      ensureSession(state.currentSessionId);
+      return state.sessions[state.currentSessionId];
+    }
+
+    function isSupervisor(){
+      return state.currentUser === "Supervisor";
+    }
+
+    function userCategories(user){
+      return (ASSIGNMENTS[user] || []).filter(c => c !== "(Supervisor)");
+    }
+
+    function categoryProgress(user, session){
+      const cats = userCategories(user);
+      const doneMap = session.categoryDone?.[user] || {};
+      const doneCount = cats.filter(c => !!doneMap[c]).length;
+      const total = cats.length || 1;
+      return { doneCount, total, pct: Math.round((doneCount/total)*100) };
+    }
+
+    function calcDelta(item){
+      const komp = Number(item.komputerQty ?? 0);
+      const fisik = Number(item.fisikQty ?? 0);
+      const delta = fisik - komp;
+      return delta;
+    }
+
+    function deltaLabel(delta){
+      if (delta > 0) return { cls:"plus", text:`+${delta}` };
+      if (delta < 0) return { cls:"minus", text:`${delta}` };
+      return { cls:"zero", text:"0" };
+    }
+
+    function addLog(session, message){
+      session.logs.push({ at: Date.now(), by: state.currentUser, message });
+      if (session.logs.length > 300) session.logs.shift();
+    }
+
+    // ------------------------------
+    // Router sederhana
+    // ------------------------------
+    let route = { name:"login", params:{} };
+
+    function go(name, params={}){
+      route = { name, params };
+      render();
+    }
+
+    function updateNav(){
+      if (!bottomNav) return;
+      const u = state.currentUser;
+      bottomNav.style.display = u ? "" : "none";
+
+      // Supervisor: sembunyikan tombol scan/board? tetap tampil scan+board; untuk user biasa sembunyikan monitor.
+      const monitor = bottomNav.querySelector('[data-go="supervisor"]');
+      if (monitor){
+        monitor.style.display = isSupervisor() ? "" : "none";
+      }
+
+      bottomNav.querySelectorAll(".nav-item").forEach(a => a.classList.remove("active"));
+      let active = route.name;
+      if (active === "category" || active === "item" || active === "nobarcode") active = "dashboard";
+      if (active === "supervisor") active = "supervisor";
+      const el = bottomNav.querySelector(`[data-go="${active}"]`);
+      if (el) el.classList.add("active");
+    }
+
+    function setFabOpen(open){
+      if (!fabMenu || !fabBtn) return;
+      fabMenu.classList.toggle("open", !!open);
+      fabBtn.classList.toggle("open", !!open);
+    }
+
+    function updateFab(){
+      if (!fabWrap) return;
+      const show = !!(state.currentUser && isSupervisor());
+      fabWrap.style.display = show ? "" : "none";
+      if (!show) setFabOpen(false);
+    }
+
+    // ------------------------------
+    // Render
+    // ------------------------------
+    function render(){
+      const u = state.currentUser;
+      // Default sesi selalu mengikuti tanggal hari ini (SO-YYYY-MM-DD)
+      if (!u){
+        const t = todayId();
+        state.currentSessionId = t;
+        ensureSession(t);
+      }
+      const session = getSession();
+      const sessionId = state.currentSessionId;
+
+      $("#btnLogout").style.display = u ? "inline-flex" : "none";
+      $("#btnReset").style.display = "inline-flex";
+      topSub.textContent = u
+        ? `User: ${u} • Sesi: ${sessionId}`
+        : "Stock Opname – mode offline (local)";
+
+      if (iconScan) iconScan.disabled = !u;
+
+      if (!u){
+        route = { name:"login", params:{} };
+      }else if (route.name === "login"){
+        route = isSupervisor() ? { name:"supervisor", params:{} } : { name:"dashboard", params:{} };
+      }
+
+      if (route.name === "login") return renderLogin();
+      if (route.name === "dashboard") return renderDashboard();
+      if (route.name === "scan") return renderScan();
+      if (route.name === "nobarcode") return renderNoBarcode();
+      if (route.name === "category") return renderCategory(route.params.category);
+      if (route.name === "item") return renderItem(route.params.itemKey);
+      if (route.name === "supervisor") return renderSupervisor();
+      // fallback
+      return renderDashboard();
+    }
+
+    function renderLogin(){
+      const sessionId = state.currentSessionId || todayId();
+      app.innerHTML = `
+        <div class="card">
+          <h2>Login</h2>
+          <div class="field">
+            <label>Nama user</label>
+            <input id="loginName" placeholder="contoh: Aura / aur / Maria Goreti" autocomplete="off" />
+            <div class="hint" id="loginHint">Ketik nama, sistem akan otomatis memilih user yang paling cocok.</div>
+          </div>
+          <div class="field">
+            <label>Sesi SO</label>
+            <input id="loginSession" value="${escapeHtml(sessionId)}" placeholder="SO-YYYY-MM-DD" />
+            <div class="hint">Tips: gunakan format SO-2026-05-31 agar rapih dan mudah export.</div>
+          </div>
+          <div class="row" style="justify-content:flex-end; margin-top:12px;">
+            <button class="btn primary" id="btnLogin"><i class="fa-solid fa-right-to-bracket"></i>Masuk</button>
+          </div>
+          <div class="footerNote">
+            Catatan: Website ini menyimpan data di perangkat sebagai file <code>backup-so.json</code> (storage browser). Untuk tim 5 orang, idealnya tiap orang pakai HP masing-masing dan sinkronisasi realtime butuh backend.
+          </div>
+        </div>
+        <div class="card">
+          <h2>Yang dikerjakan</h2>
+          <div class="list">
+            <div class="item">
+              <div class="left">
+                <div class="check done"></div>
+                <div>
+                  <h3>Scan barcode → isi stok komputer → hitung fisik</h3>
+                  <div class="meta">Kalau barcode belum dikenal, akan diminta input nama item.</div>
+                </div>
+              </div>
+            </div>
+            <div class="item">
+              <div class="left">
+                <div class="check done"></div>
+                <div>
+                  <h3>Selisih otomatis (Fisik - Komputer)</h3>
+                  <div class="meta"><span class="delta plus">+</span> stok lebih, <span class="delta minus">-</span> stok kurang.</div>
+                </div>
+              </div>
+            </div>
+            <div class="item">
+              <div class="left">
+                <div class="check done"></div>
+                <div>
+                  <h3>Khusus item tanpa barcode</h3>
+                  <div class="meta">Pakai tombol <code>Tidak ada barcode</code> → pilih dari daftar (Galon/Gas).</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      $("#btnLogin").onclick = () => {
+        const rawName = ($("#loginName").value || "").trim();
+        const user = resolveUserName(rawName);
+        if (!user){
+          toast("Nama tidak dikenali. Coba: Fredy / Aura / Maria / Siska / Goreti / Supervisor");
+          return;
+        }
+        const sess = ($("#loginSession").value || "").trim() || todayId();
+        ensureSession(sess);
+        state.currentUser = user;
+        saveState();
+        toast("Login berhasil");
+        go(user === "Supervisor" ? "supervisor" : "dashboard");
+      };
+
+      const loginName = $("#loginName");
+      const loginHint = $("#loginHint");
+      const updateHint = () => {
+        const user = resolveUserName(loginName.value);
+        if (!loginName.value.trim()){
+          loginHint.innerHTML = `Ketik nama, sistem akan otomatis memilih user yang paling cocok.`;
+          return;
+        }
+        if (!user){
+          loginHint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Tidak ada kecocokan.`;
+          return;
+        }
+        loginHint.innerHTML = `<i class="fa-solid fa-user-check"></i> Terdeteksi: <strong style="color:var(--text)">${escapeHtml(user)}</strong>`;
+      };
+      loginName.addEventListener("input", updateHint);
+      loginName.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") $("#btnLogin").click();
+      });
+      updateHint();
+    }
+
+    function renderDashboard(){
+      const session = getSession();
+      const user = state.currentUser;
+      const cats = userCategories(user);
+      const prog = categoryProgress(user, session);
+
+      const counts = Object.values(session.items).filter(it => it.owner === user);
+      const savedItems = counts.filter(it => it.savedAt).length;
+
+      app.innerHTML = `
+        <div class="card">
+          <h2>Dashboard</h2>
+          <div class="kpi">
+            <div class="box">
+              <div class="v">${prog.doneCount} / ${prog.total}</div>
+              <div class="t">Kategori selesai</div>
+            </div>
+            <div class="box">
+              <div class="v">${prog.pct}%</div>
+              <div class="t">Progress</div>
+            </div>
+            <div class="box">
+              <div class="v">${savedItems}</div>
+              <div class="t">Item tersimpan</div>
+            </div>
+          </div>
+          <div class="bar" style="margin:12px 0 10px;">
+            <div style="width:${prog.pct}%"></div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn primary" id="btnGoScan"><i class="fa-solid fa-barcode"></i>Scan</button>
+            <button class="btn" id="btnNoBarcode"><i class="fa-solid fa-list-check"></i>Tanpa barcode</button>
+            <button class="btn" id="btnExportMy"><i class="fa-solid fa-file-csv"></i>Export CSV</button>
+          </div>
+          <div class="hint">Default hitung fisik memakai counter +1 / -1. Simpan item = auto tersimpan + dihitung selisih.</div>
+        </div>
+        <div class="card">
+          <h2>Kategori Saya</h2>
+          <div class="list">
+            ${cats.map(c => {
+              const done = !!session.categoryDone?.[user]?.[c];
+              const mineInCat = Object.values(session.items).filter(it => it.owner === user && it.category === c);
+              const mineSavedInCat = mineInCat.filter(it => it.savedAt).length;
+              return `
+                <div class="item">
+                  <div class="left">
+                    <div class="check ${done ? "done":""}"></div>
+                    <div>
+                      <h3>${escapeHtml(c)}</h3>
+                      <div class="meta">${mineSavedInCat} tersimpan • ${mineInCat.length} item</div>
+                    </div>
+                  </div>
+                  <div class="right">
+                    <button class="btn small" data-open-cat="${escapeHtml(c)}"><i class="fa-solid fa-arrow-right"></i>Buka</button>
+                    <button class="btn small ${done ? "danger":"ok"}" data-toggle-cat="${escapeHtml(c)}">${done ? "Batal selesai":"Tandai selesai"}</button>
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+
+      $("#btnGoScan").onclick = () => go("scan");
+      $("#btnNoBarcode").onclick = () => go("nobarcode");
+      $("#btnExportMy").onclick = () => exportCsv({ scope:"user", user });
+
+      document.querySelectorAll("[data-open-cat]").forEach(btn => {
+        btn.onclick = () => go("category", { category: btn.getAttribute("data-open-cat") });
+      });
+
+      document.querySelectorAll("[data-toggle-cat]").forEach(btn => {
+        btn.onclick = () => {
+          const c = btn.getAttribute("data-toggle-cat");
+          const cur = !!session.categoryDone?.[user]?.[c];
+          session.categoryDone[user][c] = !cur;
+          addLog(session, `${user} set kategori "${c}" => ${!cur ? "selesai":"belum selesai"}`);
+          saveState();
+          render();
+        };
+      });
+    }
+
+    function renderScan(){
+      const session = getSession();
+      const user = state.currentUser;
+      const cats = userCategories(user);
+
+      app.innerHTML = `
+        <div class="card">
+          <h2>Scan Barcode</h2>
+          <div class="field">
+            <label>Masukkan barcode (manual)</label>
+            <input id="barcodeInput" inputmode="numeric" placeholder="contoh: 8996001300012" />
+          </div>
+          <div class="row">
+            <button class="btn primary" id="btnProcessBarcode"><i class="fa-solid fa-wand-magic-sparkles"></i>Proses</button>
+            <button class="btn" id="btnBackDash"><i class="fa-solid fa-arrow-left"></i>Kembali</button>
+            <button class="btn" id="btnNoBarcode2"><i class="fa-solid fa-list-check"></i>Tanpa barcode</button>
+          </div>
+          <div class="field" style="margin-top:12px;">
+            <label>Scan kamera (opsional)</label>
+            <div class="row">
+              <button class="btn small" id="btnStartCam"><i class="fa-solid fa-camera"></i>Mulai</button>
+              <button class="btn small danger" id="btnStopCam" disabled><i class="fa-solid fa-circle-stop"></i>Stop</button>
+            </div>
+            <div class="videoWrap" style="margin-top:10px; display:none;" id="videoWrap">
+              <video id="video" playsinline></video>
+            </div>
+            <div class="hint">Jika browser tidak mendukung deteksi barcode kamera, gunakan input manual.</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Terakhir Disimpan (Saya)</h2>
+          <div class="list">
+            ${Object.values(session.items)
+              .filter(it => it.owner === user)
+              .sort((a,b) => (b.savedAt||0) - (a.savedAt||0))
+              .slice(0,7)
+              .map(it => {
+                const d = calcDelta(it);
+                const dl = deltaLabel(d);
+                return `
+                  <div class="item">
+                    <div class="left">
+                      <div class="check ${it.savedAt ? "done":""}"></div>
+                      <div>
+                        <h3>${escapeHtml(it.name)}</h3>
+                        <div class="meta">${escapeHtml(it.category)} • ${it.barcode ? `barcode <code>${escapeHtml(it.barcode)}</code>` : `<code>tanpa barcode</code>`}</div>
+                      </div>
+                    </div>
+                    <div class="right">
+                      <span class="delta ${dl.cls}" title="Selisih (Fisik - Komputer)">${dl.text}</span>
+                      <button class="btn small" data-open-item="${escapeHtml(it.key)}"><i class="fa-solid fa-pen-to-square"></i>Buka</button>
+                    </div>
+                  </div>
+                `;
+              }).join("") || `<div class="hint">Belum ada item tersimpan.</div>`
+            }
+          </div>
+        </div>
+      `;
+
+      $("#btnBackDash").onclick = () => go("dashboard");
+      $("#btnNoBarcode2").onclick = () => go("nobarcode");
+
+      $("#btnProcessBarcode").onclick = () => {
+        const code = ($("#barcodeInput").value || "").trim();
+        if (!code) return toast("Barcode masih kosong");
+        const key = "BARCODE:" + code;
+        if (session.items[key]){
+          go("item", { itemKey: key });
+        }else{
+          // buat draft item baru
+          const it = {
+            key,
+            barcode: code,
+            name: "",
+            category: cats[0] || "",
+            owner: user,
+            komputerQty: 0,
+            fisikQty: 0,
+            createdAt: Date.now(),
+            savedAt: null
+          };
+          session.items[key] = it;
+          addLog(session, `${user} scan barcode baru ${code}`);
+          saveState();
+          go("item", { itemKey: key });
+        }
+      };
+
+      document.querySelectorAll("[data-open-item]").forEach(btn => {
+        btn.onclick = () => go("item", { itemKey: btn.getAttribute("data-open-item") });
+      });
+
+      // Kamera barcode: pakai BarcodeDetector jika ada
+      setupCameraScanner();
+    }
+
+    let camStream = null;
+    let camStopFlag = false;
+
+    function setupCameraScanner(){
+      const btnStart = $("#btnStartCam");
+      const btnStop = $("#btnStopCam");
+      const videoWrap = $("#videoWrap");
+      const video = $("#video");
+      if (!btnStart || !btnStop || !video) return;
+
+      btnStart.onclick = async () => {
+        if (!("mediaDevices" in navigator) || !navigator.mediaDevices.getUserMedia){
+          return toast("Browser tidak mendukung kamera");
+        }
+        if (!("BarcodeDetector" in window)){
+          return toast("BarcodeDetector tidak tersedia. Pakai input manual.");
+        }
+        try{
+          camStopFlag = false;
+          camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:"environment" }, audio:false });
+          video.srcObject = camStream;
+          await video.play();
+          videoWrap.style.display = "block";
+          btnStop.disabled = false;
+          toast("Kamera aktif");
+
+          const detector = new BarcodeDetector({ formats: ["ean_13","ean_8","code_128","code_39","qr_code","upc_a","upc_e"] });
+          const session = getSession();
+          const user = state.currentUser;
+          const cats = userCategories(user);
+
+          const loop = async () => {
+            if (camStopFlag) return;
+            try{
+              const barcodes = await detector.detect(video);
+              if (barcodes && barcodes.length){
+                const raw = (barcodes[0].rawValue || "").trim();
+                if (raw){
+                  $("#barcodeInput").value = raw;
+                  toast("Terdeteksi: " + raw);
+                  // Auto proses sekali, lalu stop supaya tidak spam
+                  camStopFlag = true;
+                  stopCamera();
+                  const key = "BARCODE:" + raw;
+                  if (session.items[key]){
+                    go("item", { itemKey:key });
+                  }else{
+                    session.items[key] = {
+                      key,
+                      barcode: raw,
+                      name: "",
+                      category: cats[0] || "",
+                      owner: user,
+                      komputerQty: 0,
+                      fisikQty: 0,
+                      createdAt: Date.now(),
+                      savedAt: null
+                    };
+                    addLog(session, `${user} scan kamera barcode baru ${raw}`);
+                    saveState();
+                    go("item", { itemKey:key });
+                  }
+                  return;
+                }
+              }
+            }catch(e){
+              // ignore
+            }
+            requestAnimationFrame(loop);
+          };
+          requestAnimationFrame(loop);
+
+        }catch(e){
+          toast("Gagal akses kamera");
+        }
+      };
+
+      btnStop.onclick = () => {
+        camStopFlag = true;
+        stopCamera();
+      };
+    }
+
+    function stopCamera(){
+      const btnStop = $("#btnStopCam");
+      const videoWrap = $("#videoWrap");
+      const video = $("#video");
+      if (camStream){
+        camStream.getTracks().forEach(t => t.stop());
+        camStream = null;
+      }
+      if (video){ video.srcObject = null; }
+      if (videoWrap){ videoWrap.style.display = "none"; }
+      if (btnStop){ btnStop.disabled = true; }
+    }
+
+    function renderNoBarcode(){
+      const session = getSession();
+      const user = state.currentUser;
+      const myCats = new Set(userCategories(user));
+      const options = NO_BARCODE_ITEMS.filter(x => x.owner === user && myCats.has(x.category));
+
+      app.innerHTML = `
+        <div class="card">
+          <h2>Tidak ada barcode</h2>
+          <div class="hint">Pilih item berikut untuk input stok komputer & hitung fisik.</div>
+          <div class="list" style="margin-top:10px;">
+            ${options.map(o => {
+              const existing = session.items[o.id];
+              const done = existing?.savedAt;
+              const d = existing ? calcDelta(existing) : 0;
+              const dl = existing ? deltaLabel(d) : null;
+              return `
+                <div class="item">
+                  <div class="left">
+                    <div class="check ${done ? "done":""}"></div>
+                    <div>
+                      <h3>${escapeHtml(o.name)}</h3>
+                      <div class="meta">${escapeHtml(o.category)} • <code>tanpa barcode</code></div>
+                    </div>
+                  </div>
+                  <div class="right">
+                    ${dl ? `<span class="delta ${dl.cls}">${dl.text}</span>` : `<span class="pill">Belum ada data</span>`}
+                    <button class="btn small" data-pick="${escapeHtml(o.id)}">${existing ? "Buka":"Mulai"}</button>
+                  </div>
+                </div>
+              `;
+            }).join("") || `<div class="hint">Tidak ada item tanpa barcode untuk user ini.</div>`}
+          </div>
+          <div class="row" style="justify-content:flex-end; margin-top:12px;">
+            <button class="btn" id="btnBackDash2"><i class="fa-solid fa-arrow-left"></i>Kembali</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Catatan</h2>
+          <div class="footerNote">
+            Item tanpa barcode disimpan dengan ID internal agar tidak dobel. Kamu tetap bisa input stok komputer dan hitung fisik seperti item biasa.
+          </div>
+        </div>
+      `;
+
+      $("#btnBackDash2").onclick = () => go("dashboard");
+      document.querySelectorAll("[data-pick]").forEach(btn => {
+        btn.onclick = () => {
+          const key = btn.getAttribute("data-pick");
+          if (!session.items[key]){
+            const def = NO_BARCODE_ITEMS.find(x => x.id === key);
+            session.items[key] = {
+              key,
+              barcode: null,
+              name: def?.name || "Item tanpa barcode",
+              category: def?.category || "",
+              owner: def?.owner || user,
+              komputerQty: 0,
+              fisikQty: 0,
+              createdAt: Date.now(),
+              savedAt: null
+            };
+            addLog(session, `${user} mulai item tanpa barcode ${session.items[key].name}`);
+            saveState();
+          }
+          go("item", { itemKey: key });
+        };
+      });
+    }
+
+    function renderCategory(category){
+      const session = getSession();
+      const user = state.currentUser;
+      const cats = userCategories(user);
+      if (!cats.includes(category)) return go("dashboard");
+
+      const mine = Object.values(session.items).filter(it => it.owner === user && it.category === category);
+      const mineSaved = mine.filter(it => it.savedAt);
+      const done = !!session.categoryDone?.[user]?.[category];
+
+      app.innerHTML = `
+        <div class="card">
+          <h2>Kategori: ${escapeHtml(category)}</h2>
+          <div class="kpi">
+            <div class="box"><div class="v">${mineSaved.length}</div><div class="t">Item tersimpan</div></div>
+            <div class="box"><div class="v">${mine.length}</div><div class="t">Total item</div></div>
+            <div class="box"><div class="v">${done ? "Selesai":"Belum"}</div><div class="t">Status kategori</div></div>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn primary" id="btnGoScan3"><i class="fa-solid fa-barcode"></i>Scan</button>
+            <button class="btn" id="btnNoBarcode3"><i class="fa-solid fa-list-check"></i>Tanpa barcode</button>
+            <button class="btn ${done ? "danger":"ok"}" id="btnToggleDone">${done ? "Batal selesai":"Tandai selesai"}</button>
+            <button class="btn" id="btnBackDash3"><i class="fa-solid fa-arrow-left"></i>Kembali</button>
+          </div>
+          <div class="hint">Kategori ini bersifat fleksibel: item akan bertambah saat kamu scan atau pilih dari daftar.</div>
+        </div>
+        <div class="card">
+          <h2>Item di kategori ini</h2>
+          <div class="list">
+            ${mine.sort((a,b) => (b.savedAt||0) - (a.savedAt||0)).map(it => {
+              const d = calcDelta(it);
+              const dl = deltaLabel(d);
+              return `
+                <div class="item">
+                  <div class="left">
+                    <div class="check ${it.savedAt ? "done":""}"></div>
+                    <div>
+                      <h3>${escapeHtml(it.name || "(Belum diisi nama)")}</h3>
+                      <div class="meta">${it.barcode ? `barcode <code>${escapeHtml(it.barcode)}</code>` : `<code>tanpa barcode</code>`}</div>
+                    </div>
+                  </div>
+                  <div class="right">
+                    <span class="delta ${dl.cls}">${dl.text}</span>
+                    <button class="btn small" data-open-item="${escapeHtml(it.key)}"><i class="fa-solid fa-pen-to-square"></i>Buka</button>
+                  </div>
+                </div>
+              `;
+            }).join("") || `<div class="hint">Belum ada item. Mulai dengan scan barcode.</div>`}
+          </div>
+        </div>
+      `;
+
+      $("#btnGoScan3").onclick = () => go("scan");
+      $("#btnNoBarcode3").onclick = () => go("nobarcode");
+      $("#btnBackDash3").onclick = () => go("dashboard");
+      $("#btnToggleDone").onclick = () => {
+        const cur = !!session.categoryDone?.[user]?.[category];
+        session.categoryDone[user][category] = !cur;
+        addLog(session, `${user} set kategori "${category}" => ${!cur ? "selesai":"belum selesai"}`);
+        saveState();
+        render();
+      };
+
+      document.querySelectorAll("[data-open-item]").forEach(btn => {
+        btn.onclick = () => go("item", { itemKey: btn.getAttribute("data-open-item") });
+      });
+    }
+
+    function renderItem(itemKey){
+      const session = getSession();
+      const user = state.currentUser;
+      const it = session.items[itemKey];
+      if (!it) return go("dashboard");
+
+      // Access control sederhana: user hanya bisa edit item miliknya; supervisor bisa edit semua
+      const canEdit = isSupervisor() || it.owner === user;
+      const cats = isSupervisor() ? Object.values(ASSIGNMENTS).flat().filter(x => x !== "(Supervisor)") : userCategories(user);
+      const delta = calcDelta(it);
+      const dl = deltaLabel(delta);
+
+      const savedLabel = it.savedAt ? new Date(it.savedAt).toLocaleString() : "Belum tersimpan";
+      const barcodeInfo = it.barcode ? `barcode <code>${escapeHtml(it.barcode)}</code>` : `<code>tanpa barcode</code>`;
+
+      app.innerHTML = `
+        <div class="card">
+          <h2>Item</h2>
+          <div class="row" style="align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <span class="pill"><strong>${escapeHtml(it.owner)}</strong> • ${escapeHtml(it.category || "-")}</span>
+            <span class="pill">Selisih: <span class="delta ${dl.cls}" style="margin-left:6px;">${dl.text}</span></span>
+          </div>
+          <div class="hint">${barcodeInfo} • Status: ${escapeHtml(savedLabel)}</div>
+
+          <div class="split" style="margin-top:10px;">
+            <div class="field">
+              <label>Nama item</label>
+              <input id="itName" value="${escapeHtml(it.name || "")}" ${canEdit ? "" : "disabled"} placeholder="contoh: Aqua Galon" />
+            </div>
+            <div class="field">
+              <label>Kategori</label>
+              <select id="itCategory" ${canEdit ? "" : "disabled"}>
+                ${cats.map(c => `<option value="${escapeHtml(c)}" ${c===it.category ? "selected":""}>${escapeHtml(c)}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+
+          <div class="split">
+            <div class="field">
+              <label>Stok komputer (sistem)</label>
+              <input id="itKomputer" type="number" step="1" value="${Number(it.komputerQty ?? 0)}" ${canEdit ? "" : "disabled"} />
+              <div class="hint">Ini angka yang kamu lihat di komputer saat SO.</div>
+            </div>
+            <div class="field">
+              <label>Stok fisik</label>
+              <div class="row" style="gap:8px;">
+                <button class="btn small" id="btnMinus" ${canEdit ? "" : "disabled"}><i class="fa-solid fa-minus"></i>1</button>
+                <input id="itFisik" type="number" step="1" value="${Number(it.fisikQty ?? 0)}" ${canEdit ? "" : "disabled"} style="flex:1;" />
+                <button class="btn small" id="btnPlus" ${canEdit ? "" : "disabled"}><i class="fa-solid fa-plus"></i>1</button>
+              </div>
+              <div class="hint">Default pakai counter +1/-1, tapi kamu tetap bisa ketik angka langsung.</div>
+            </div>
+          </div>
+
+          <div class="row" style="justify-content:space-between; margin-top:10px;">
+            <div class="row">
+              <button class="btn" id="btnBack"><i class="fa-solid fa-arrow-left"></i>Kembali</button>
+              ${isSupervisor() ? `<button class="btn" id="btnBackSup"><i class="fa-solid fa-gauge-high"></i>Supervisor</button>` : ""}
+            </div>
+            <div class="row">
+              <button class="btn danger" id="btnDelete" ${canEdit ? "" : "disabled"} title="Hapus item dari sesi"><i class="fa-solid fa-trash"></i>Hapus</button>
+              <button class="btn primary" id="btnSave" ${canEdit ? "" : "disabled"}><i class="fa-solid fa-floppy-disk"></i>Simpan</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Preview Selisih</h2>
+          <div class="list">
+            <div class="item">
+              <div class="left">
+                <div class="check ${it.savedAt ? "done":""}"></div>
+                <div>
+                  <h3>${escapeHtml(it.name || "(Nama belum diisi)")}</h3>
+                  <div class="meta">Komputer: <code>${Number(it.komputerQty ?? 0)}</code> • Fisik: <code>${Number(it.fisikQty ?? 0)}</code></div>
+                </div>
+              </div>
+              <div class="right">
+                <span class="delta ${dl.cls}">${dl.text}</span>
+              </div>
+            </div>
+          </div>
+          <div class="footerNote">
+            Aturan: Selisih = Fisik - Komputer. Jika lebih → plus, jika kurang → minus.
+          </div>
+        </div>
+      `;
+
+      const itName = $("#itName");
+      const itCategory = $("#itCategory");
+      const itKomputer = $("#itKomputer");
+      const itFisik = $("#itFisik");
+
+      function syncFromInputs(){
+        it.name = (itName?.value || "").trim();
+        it.category = itCategory?.value || it.category;
+        it.komputerQty = Number(itKomputer?.value || 0);
+        it.fisikQty = Math.max(0, Number(itFisik?.value || 0));
+      }
+
+      if (canEdit){
+        $("#btnPlus").onclick = () => {
+          itFisik.value = String(Number(itFisik.value || 0) + 1);
+        };
+        $("#btnMinus").onclick = () => {
+          itFisik.value = String(Math.max(0, Number(itFisik.value || 0) - 1));
+        };
+      }
+
+      $("#btnBack").onclick = () => {
+        if (isSupervisor()) return go("supervisor");
+        go("dashboard");
+      };
+      if (isSupervisor()){
+        $("#btnBackSup").onclick = () => go("supervisor");
+      }
+
+      $("#btnDelete").onclick = async () => {
+        if (!canEdit) return;
+        const ok = await modalConfirm({
+          title: "Hapus item?",
+          text: "Item akan dihapus dari sesi ini. Lanjutkan?",
+          okText: "Ya, Hapus"
+        });
+        if (!ok) return;
+        delete session.items[itemKey];
+        addLog(session, `${user} hapus item ${itemKey}`);
+        saveState();
+        toast("Item dihapus");
+        go(isSupervisor() ? "supervisor" : "dashboard");
+      };
+
+      $("#btnSave").onclick = async () => {
+        if (!canEdit) return;
+        syncFromInputs();
+
+        if (!it.name){
+          return toast("Nama item wajib diisi");
+        }
+        if (!it.category){
+          return toast("Kategori wajib dipilih");
+        }
+
+        const delta = calcDelta(it);
+        const dl = deltaLabel(delta);
+
+        const ok = await modalConfirm({
+          title: "Konfirmasi simpan",
+          text: `Nama: ${it.name}\nKomputer: ${it.komputerQty}\nFisik: ${it.fisikQty}\nSelisih: ${dl.text}\n\nApakah data SO item sudah valid/benar?`,
+          okText: "Simpan"
+        });
+        if (!ok) return;
+
+        it.savedAt = Date.now();
+        it.updatedBy = user;
+        it.updatedAt = Date.now();
+        addLog(session, `${user} simpan item ${it.name} (selisih ${dl.text})`);
+        saveState();
+        toast("Tersimpan");
+        render(); // refresh agar delta dan status update
+      };
+    }
+
+    function renderSupervisor(){
+      const session = getSession();
+      const sessionId = state.currentSessionId;
+      const team = USERS.filter(u => u !== "Supervisor");
+      const rows = team.map(u => ({ u, ...categoryProgress(u, session) }));
+
+      const totalItems = Object.values(session.items).length;
+      const savedItems = Object.values(session.items).filter(it => it.savedAt).length;
+      const deltaNonZero = Object.values(session.items).filter(it => it.savedAt && calcDelta(it) !== 0).length;
+
+      app.innerHTML = `
+        <div class="card">
+          <h2>Dashboard Supervisor</h2>
+          <div class="kpi">
+            <div class="box"><div class="v">${sessionId}</div><div class="t">Sesi aktif</div></div>
+            <div class="box"><div class="v">${savedItems} / ${totalItems}</div><div class="t">Item tersimpan</div></div>
+            <div class="box"><div class="v">${deltaNonZero}</div><div class="t">Item selisih ≠ 0</div></div>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn primary" id="btnExportAll"><i class="fa-solid fa-file-csv"></i>Export CSV</button>
+            <button class="btn" id="btnNewSession"><i class="fa-solid fa-plus"></i>Sesi baru</button>
+          </div>
+          <div class="hint">Catatan: “stok komputer” di sini adalah input tim saat SO (bukan backoffice). Selisih = fisik - komputer.</div>
+        </div>
+        <div class="card">
+          <h2>Progress Tim</h2>
+          <div class="list">
+            ${rows.map(r => `
+              <div class="item">
+                <div class="left">
+                  <div class="check ${r.pct===100 ? "done":""}"></div>
+                  <div style="min-width:180px;">
+                    <h3>${escapeHtml(r.u)}</h3>
+                    <div class="meta">${r.doneCount} / ${r.total} kategori • ${r.pct}%</div>
+                    <div class="bar" style="margin-top:8px;"><div style="width:${r.pct}%"></div></div>
+                  </div>
+                </div>
+                <div class="right">
+                  <button class="btn small" data-open-user="${escapeHtml(r.u)}"><i class="fa-solid fa-eye"></i>Detail</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+
+      $("#btnExportAll").onclick = () => exportCsv({ scope:"all" });
+      $("#btnNewSession").onclick = async () => {
+        const ok = await modalConfirm({
+          title: "Buat sesi baru?",
+          text: "Ini akan membuat sesi SO baru (tanpa menghapus sesi lama). Lanjutkan?",
+          okText: "Buat"
+        });
+        if (!ok) return;
+        const id = prompt("Nama sesi baru (contoh SO-2026-06-01):", todayId());
+        if (!id) return;
+        ensureSession(id.trim());
+        saveState();
+        toast("Sesi aktif diganti: " + state.currentSessionId);
+        render();
+      };
+
+      document.querySelectorAll("[data-open-user]").forEach(btn => {
+        btn.onclick = () => renderSupervisorUser(btn.getAttribute("data-open-user"));
+      });
+    }
+
+    function renderSupervisorUser(user){
+      const session = getSession();
+      const cats = userCategories(user);
+      const doneMap = session.categoryDone?.[user] || {};
+      const items = Object.values(session.items).filter(it => it.owner === user);
+
+      app.innerHTML = `
+        <div class="card">
+          <h2>Detail: ${escapeHtml(user)}</h2>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn" id="btnBackSup2"><i class="fa-solid fa-arrow-left"></i>Kembali</button>
+            <button class="btn" id="btnExportUser"><i class="fa-solid fa-file-csv"></i>Export CSV</button>
+          </div>
+          <div class="hint">Supervisor bisa lihat status kategori & item yang tersimpan.</div>
+        </div>
+        <div class="card">
+          <h2>Status Kategori</h2>
+          <div class="list">
+            ${cats.map(c => `
+              <div class="item">
+                <div class="left">
+                  <div class="check ${doneMap[c] ? "done":""}"></div>
+                  <div>
+                    <h3>${escapeHtml(c)}</h3>
+                    <div class="meta">${doneMap[c] ? "Selesai" : "Belum selesai"}</div>
+                  </div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+        <div class="card">
+          <h2>Item (${items.length})</h2>
+          <div class="list">
+            ${items
+              .sort((a,b) => (b.savedAt||0) - (a.savedAt||0))
+              .map(it => {
+                const d = calcDelta(it);
+                const dl = deltaLabel(d);
+                return `
+                  <div class="item">
+                    <div class="left">
+                      <div class="check ${it.savedAt ? "done":""}"></div>
+                      <div>
+                        <h3>${escapeHtml(it.name || "(Belum diisi nama)")}</h3>
+                        <div class="meta">${escapeHtml(it.category)} • ${it.barcode ? `barcode <code>${escapeHtml(it.barcode)}</code>` : `<code>tanpa barcode</code>`}</div>
+                      </div>
+                    </div>
+                    <div class="right">
+                      <span class="delta ${dl.cls}">${dl.text}</span>
+                      <button class="btn small" data-open-item="${escapeHtml(it.key)}"><i class="fa-solid fa-pen-to-square"></i>Buka</button>
+                    </div>
+                  </div>
+                `;
+              }).join("") || `<div class="hint">Belum ada item.</div>`
+            }
+          </div>
+        </div>
+      `;
+
+      $("#btnBackSup2").onclick = () => go("supervisor");
+      $("#btnExportUser").onclick = () => exportCsv({ scope:"user", user });
+      document.querySelectorAll("[data-open-item]").forEach(btn => {
+        btn.onclick = () => go("item", { itemKey: btn.getAttribute("data-open-item") });
+      });
+    }
+
+    // ------------------------------
+    // Export CSV
+    // ------------------------------
+    function exportCsv({scope="all", user=null}){
+      const session = getSession();
+      const sessionId = state.currentSessionId;
+      let items = Object.values(session.items);
+      if (scope === "user" && user){
+        items = items.filter(it => it.owner === user);
+      }
+      // urutkan: owner -> category -> name
+      items.sort((a,b) => (a.owner||"").localeCompare(b.owner||"")
+        || (a.category||"").localeCompare(b.category||"")
+        || (a.name||"").localeCompare(b.name||""));
+
+      const rows = [];
+      rows.push([
+        "session",
+        "owner",
+        "category",
+        "barcode",
+        "item_name",
+        "stok_komputer",
+        "stok_fisik",
+        "selisih_fisik_minus_komputer",
+        "status_tersimpan",
+        "updated_by",
+        "updated_at"
+      ]);
+      for (const it of items){
+        const delta = calcDelta(it);
+        rows.push([
+          sessionId,
+          it.owner || "",
+          it.category || "",
+          it.barcode || "",
+          it.name || "",
+          Number(it.komputerQty ?? 0),
+          Number(it.fisikQty ?? 0),
+          delta,
+          it.savedAt ? "tersimpan" : "draft",
+          it.updatedBy || "",
+          it.updatedAt ? new Date(it.updatedAt).toISOString() : ""
+        ]);
+      }
+
+      const csv = rows.map(r => r.map(v => {
+        const s = String(v ?? "");
+        if (/[",\n]/.test(s)) return `"${s.replaceAll('"','""')}"`;
+        return s;
+      }).join(",")).join("\n");
+
+      const blob = new Blob([csv], { type:"text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const safeUser = user ? user.replaceAll(" ","_") : "ALL";
+      a.href = url;
+      a.download = `SO_${sessionId}_${safeUser}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast("Export CSV dibuat");
+    }
+
+    // ------------------------------
+    // Top actions
+    // ------------------------------
+    $("#btnTheme").onclick = () => {
+      state.ui = state.ui || { theme: "light" };
+      state.ui.theme = (state.ui.theme === "light") ? "dark" : "light";
+      applyTheme();
+      saveState();
+    };
+
+    $("#btnLogout").onclick = () => {
+      stopCamera();
+      state.currentUser = null;
+      saveState();
+      go("login");
+    };
+
+    $("#btnReset").onclick = async () => {
+      const ok = await modalConfirm({
+        title: "Reset data lokal?",
+        text: "Semua sesi & data SO (backup-so.json) di perangkat ini akan dihapus. Lanjutkan?",
+        okText: "Ya, Reset"
+      });
+      if (!ok) return;
+      stopCamera();
+      state = defaultState();
+      await deleteBackupFromOpfs();
+      saveState();
+      toast("Data direset");
+      go("login");
+    };
+
+    // ------------------------------
+    // Init
+    // ------------------------------
+    // Bottom nav click handler
+    if (bottomNav){
+      bottomNav.querySelectorAll(".nav-item").forEach(a => {
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          const dest = a.getAttribute("data-go");
+          if (!state.currentUser) return;
+          if (dest === "supervisor" && !isSupervisor()){
+            toast("Khusus Supervisor");
+            return;
+          }
+          go(dest);
+        });
+      });
+    }
+
+    // Header quick action (barcode cepat)
+    if (iconScan){
+      iconScan.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!state.currentUser) return;
+        go("scan");
+      });
+    }
+
+    // Floating + menu (Supervisor)
+    if (fabBtn){
+      fabBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!(state.currentUser && isSupervisor())) return;
+        const nowOpen = fabMenu?.classList.contains("open");
+        setFabOpen(!nowOpen);
+      });
+    }
+    if (fabExport){
+      fabExport.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!(state.currentUser && isSupervisor())) return;
+        setFabOpen(false);
+        downloadBackupJson();
+      });
+    }
+    if (fabImport){
+      fabImport.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!(state.currentUser && isSupervisor())) return;
+        setFabOpen(false);
+        importBackupJson();
+      });
+    }
+    document.addEventListener("click", (e) => {
+      if (!fabWrap || !fabMenu || !fabBtn) return;
+      if (!fabMenu.classList.contains("open")) return;
+      const target = e.target;
+      if (fabWrap.contains(target)) return;
+      setFabOpen(false);
+    });
+
+    // Update nav tiap render
+    const _render = render;
+    render = function(){
+      _render();
+      updateNav();
+      updateFab();
+    };
+
+    async function initApp(){
+      const loaded = await readBackupFromOpfs();
+      if (loaded){
+        state = normalizeLoadedState(loaded);
+      }
+      // Default sesi selalu hari ini
+      const t = todayId();
+      if (!state.sessions[t]) state.sessions[t] = createSession(t);
+      state.currentSessionId = t;
+      applyTheme();
+      render();
+    }
+
+    initApp();
+  </script>
+</body>
+</html>
